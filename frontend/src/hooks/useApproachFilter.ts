@@ -1,18 +1,18 @@
 import { useState } from "react";
 
-const FILTER_OPTIONS = ["NB", "SB", "EB", "WB"];
-const STRING_FILTER_OPTIONS = ["car", "motorcycle", "pedestrian", "bicycle"];
+const FILTER_OPTIONS: string[] = ["all", "NB", "SB", "EB", "WB"];
+const STRING_FILTER_OPTIONS: string[] = ["all", "car", "motorcycle", "pedestrian", "bicycle"];
 
 export function useFilter() {
-    const [filter, setFilter] = useState<string[]>(FILTER_OPTIONS);
-    const [stringFilter, setStringFilter] = useState<string[]>(STRING_FILTER_OPTIONS);
+    const [filter, setFilter] = useState<string>(FILTER_OPTIONS[0]);
+    const [stringFilter, setStringFilter] = useState<string>(STRING_FILTER_OPTIONS[0]);
 
-    const handleFilterChange = (values: string[]) => {
-        setFilter(values);
+    const handleFilterChange = (selectedFilter: string) => {
+        setFilter(selectedFilter);
     };
 
-    const handleStringFilterChange = (values: string[]) => {
-        setStringFilter(values);
+    const handleStringFilterChange = (selectedStringFilter: string) => {
+        setStringFilter(selectedStringFilter);
     };
 
     return {
@@ -21,6 +21,6 @@ export function useFilter() {
         handleFilterChange,
         handleStringFilterChange,
         FILTER_OPTIONS,
-        STRING_FILTER_OPTIONS,
+        STRING_FILTER_OPTIONS
     };
 }

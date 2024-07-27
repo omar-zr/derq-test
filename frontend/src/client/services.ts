@@ -365,6 +365,8 @@ export class UsersService {
 export type TDataReadChart = {
   start_date: string
   end_date: string
+  approach: string
+  type: string
 }
 
 export type TDataRunGenerator = {
@@ -391,13 +393,20 @@ export class AnalService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<VechilePerApproach>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    const { start_date, end_date } = data
+    const { start_date, end_date, approach, type } = data
+    let endpoint = "/api/v1/sensors/counts?start_date={start_date}&end_date={end_date}"
+    if (approach != 'all')
+      endpoint += '&approach={approach}'
+    if (type != 'all')
+      endpoint += '&class_type={type}'
     return __request(configs, {
       method: "GET",
-      url: "/api/v1/sensors/counts?start_date={start_date}&end_date={end_date}",
+      url: endpoint,
       path: {
         start_date,
-        end_date
+        end_date,
+        approach,
+        type
       },
       errors: {
         422: `Validation Error`,
@@ -416,13 +425,20 @@ export class HealthService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<HealthCheck>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    let { start_date, end_date } = data
+    const { start_date, end_date, approach, type } = data
+    let endpoint = "/api/v1/sensors/sensorhealth/gaps?start_date={start_date}&end_date={end_date}"
+    if (approach != 'all')
+      endpoint += '&approach={approach}'
+    if (type != 'all')
+      endpoint += '&class_type={type}'
     return __request(configs, {
       method: "GET",
-      url: "/api/v1/sensors/sensorhealth/gaps",
+      url: endpoint,
       path: {
         start_date,
-        end_date
+        end_date,
+        approach,
+        type
       },
       errors: {
         422: `Validation Error`,
@@ -441,13 +457,20 @@ export class SensorService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<HourlyData>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    let { start_date, end_date } = data
+    const { start_date, end_date, approach, type } = data
+    let endpoint = "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}"
+    if (approach != 'all')
+      endpoint += '&approach={approach}'
+    if (type != 'all')
+      endpoint += '&class_type={type}'
     return __request(configs, {
       method: "GET",
-      url: "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}",
+      url: endpoint,
       path: {
         start_date,
-        end_date
+        end_date,
+        approach,
+        type
       },
       errors: {
         422: `Validation Error`,
@@ -465,7 +488,7 @@ export class GeneratorService {
   public static getStatus(): CancelablePromise<GeneratorData> {
     // let { car, motorcycle, pedestrian, bicycle, nb, sb, wb, eb, failure } = data
     let configs = OpenAPI
-    configs.BASE = "http://127.0.0.1"
+    configs.BASE = "http://127.0.0.1:8000"
     return __request(configs, {
       method: "GET",
       url: "/status",

@@ -1,46 +1,34 @@
-import { Table, TableContainer, Tbody, Td, Th, Thead, Tr, Flex, Skeleton } from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Td, Th, Thead, Tr, Spinner } from "@chakra-ui/react";
 
 interface HealthTableProps {
-    data: any[];
+    data: any[]; 
     isLoading: boolean;
 }
 
 function HealthTable({ data, isLoading }: HealthTableProps) {
+    if (isLoading) {
+        return <Spinner />;
+    }
+
     return (
         <TableContainer>
-            <Table size={{ base: "sm", md: "md" }}>
+            <Table size="md">
                 <Thead>
                     <Tr>
-                        <Th>Start time</Th>
-                        <Th>End time</Th>
-                        <Th>Duration</Th>
+                        <Th>Start Time</Th>
+                        <Th>End Time</Th>
+                        <Th>Status</Th>
                     </Tr>
                 </Thead>
-                {isLoading ? (
-                    <Tbody>
-                        {new Array(5).fill(null).map((_, index) => (
-                            <Tr key={index}>
-                                {new Array(3).fill(null).map((_, index) => (
-                                    <Td key={index}>
-                                        <Flex>
-                                            <Skeleton height="20px" width="20px" />
-                                        </Flex>
-                                    </Td>
-                                ))}
-                            </Tr>
-                        ))}
-                    </Tbody>
-                ) : (
-                    <Tbody>
-                        {data?.map(item => (
-                            <Tr key={item.startTime}>
-                                <Td>{item.startTime}</Td>
-                                <Td>{item.endTime}</Td>
-                                <Td>{item.duration}</Td>
-                            </Tr>
-                        ))}
-                    </Tbody>
-                )}
+                <Tbody>
+                    {data?.map((item, index) => (
+                        <Tr key={index}>
+                            <Td>{item.startTime}</Td>
+                            <Td>{item.endTime}</Td>
+                            <Td>{item.status}</Td>
+                        </Tr>
+                    ))}
+                </Tbody>
             </Table>
         </TableContainer>
     );

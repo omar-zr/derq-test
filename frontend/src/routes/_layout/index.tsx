@@ -1,10 +1,10 @@
-import { Container, Box, Text, Button, CheckboxGroup, Checkbox, Flex } from "@chakra-ui/react";
+import { Container, Box, Text, Button, Select, Flex } from "@chakra-ui/react";
 import { DateRange } from "react-date-range";
 import useAuth from "../../hooks/useAuth";
-import { createFileRoute } from "@tanstack/react-router";
-import { useDateRange } from "../../hooks/useDateRange";
-import { useFilter } from "../../hooks/useApproachFilter";
 import LineChart from "../../components/Index/LineChart";
+import { useDateRange } from "../../hooks/useDateRange";
+import { createFileRoute } from "@tanstack/react-router";
+import { useFilter } from "../../hooks/useApproachFilter";
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -22,7 +22,7 @@ function Dashboard() {
         <Text>Welcome back, nice to see you again!</Text>
       </Box>
       <Button onClick={toggleDateRangePicker}>
-        {isDateRangePickerVisible ? "Hide Date Range Picker" : "Show Date Range Picker"}
+        Date
       </Button>
       {isDateRangePickerVisible && (
         <DateRange
@@ -30,33 +30,28 @@ function Dashboard() {
           onChange={handleDateRangeSelect}
         />
       )}
-      <Flex mt={4} wrap="wrap" gap={4}>
-        <Box>
-          <Text mb={2}>Approach Filter</Text>
-          <CheckboxGroup value={filter} onChange={handleFilterChange}>
-            {FILTER_OPTIONS.map(option => (
-              <Checkbox key={option} value={option}>
-                {option}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </Box>
-        <Box>
-          <Text mb={2}>Type Filter</Text>
-          <CheckboxGroup value={stringFilter} onChange={handleStringFilterChange}>
-            {STRING_FILTER_OPTIONS.map(option => (
-              <Checkbox key={option} value={option}>
-                {option}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </Box>
+      <Flex mt={4} gap={4}>
+        <Select value={filter} onChange={(e) => handleFilterChange(e.target.value)}>
+          {FILTER_OPTIONS.map((option: string) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Select>
+        <Select value={stringFilter} onChange={(e) => handleStringFilterChange(e.target.value)}>
+          {STRING_FILTER_OPTIONS.map((option: string) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Select>
       </Flex>
-      <Box style={{ width: '100%' }}>
+      <Box style={{ width: '100%' }} mt={4}>
         <LineChart
           startDate={dateRange[0].startDate}
           endDate={dateRange[0].endDate}
           filter={filter}
+          stringFilter={stringFilter}
         />
       </Box>
     </Container>
@@ -64,4 +59,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

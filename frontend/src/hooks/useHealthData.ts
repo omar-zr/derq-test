@@ -1,27 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { HealthService } from "../client/services";
+import { HealthService } from "../client";
+import { formatDate } from "../utils";
 
-interface UseHealthDataReturn {
-    data: any;
-    isLoading: boolean;
-}
-
-export function useHealthData(startDate: Date, endDate: Date): UseHealthDataReturn {
-    const { data, isLoading } = useQuery({
-        queryFn: () => HealthService.readData({
-            start_date: formatDate(startDate),
-            end_date: formatDate(endDate),
-        }),
-        queryKey: ["health", startDate, endDate],
-        placeholderData: (prevData) => prevData,
+export function useHealthData(startDate: Date, endDate: Date, filter: string, stringFilter: string) {
+    return useQuery({
+        queryFn: () =>
+            HealthService.readData({
+                start_date: formatDate(startDate),
+                end_date: formatDate(endDate),
+                approach: filter,
+                type: stringFilter,
+            }),
+        queryKey: ["health", startDate, endDate, filter, stringFilter],
     });
-
-    return { data, isLoading };
-}
-
-function formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
 }

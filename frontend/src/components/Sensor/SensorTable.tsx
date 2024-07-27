@@ -47,7 +47,7 @@ function SensorTable({ data, isLoading }: SensorTableProps) {
                     </Tbody>
                 ) : (
                     <Tbody>
-                        {data?.map(item => (
+                        {data.map(item => (
                             <Tr key={item.hour}>
                                 <Td>{item.hour}</Td>
                                 <Td>{item.results['NB_car']}</Td>
