@@ -94,29 +94,40 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-https.middlewares=${STACK_NAME?Variable not set}-www-redirect
 
   generator:
+    image: '${DOCKER_IMAGE_GENERATOR?Variable not set}:${TAG-latest}'
     build:
       context: ./generator  # Path to the directory containing the Dockerfile
+    networks:
+      - traefik-public
+      - default
     restart: always
     environment:
       - DOMAIN=${DOMAIN}
       - ENVIRONMENT=${ENVIRONMENT}
       - SECRET_KEY=${SECRET_KEY?Variable not set}
     ports:
-      - "8000:8000"  # Expose the port used by FastAPI
+      - "8000:8000"  
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
       - traefik.constraint-label=traefik-public
-
+      # Middleware to strip /generator prefix
+      - traefik.http.middlewares.${STACK_NAME?Variable not set}-generator-strip.stripprefix.prefixes=/generator
+      # Routing rules
       - traefik.http.services.${STACK_NAME?Variable not set}-generator.loadbalancer.server.port=8000
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-http.rule=Host(`generator.${DOMAIN?Variable not set}`)
+      # HTTP router for /generator path
+      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-http.rule=Host(`localhost`) && PathPrefix(`/generator`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-generator-http.entrypoints=http
+      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-http.middlewares=${STACK_NAME?Variable not set}-generator-strip
 
-      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.rule=Host(`generator.${DOMAIN?Variable not set}`)
+      # HTTPS router for /generator path
+      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.rule=Host(`localhost`) && PathPrefix(`/generator`)
       - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.entrypoints=https
       - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.tls=true
       - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.tls.certresolver=le
+      - traefik.http.routers.${STACK_NAME?Variable not set}-generator-https.middlewares=${STACK_NAME?Variable not set}-generator-strip
+
 
 
 

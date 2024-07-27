@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SensorService } from "../client/services";
 
 interface UseSensorsDataReturn {
-    data: any[];
+    data: any;
     isLoading: boolean;
 }
 
@@ -17,7 +17,7 @@ export function useSensorsData(startDate: Date, endDate: Date): UseSensorsDataRe
         placeholderData: (prevData) => prevData,
     });
 
-    return { data, isLoading };
+    return {  data: data || [], isLoading };
 }
 
 function formatDate(date: Date): string {

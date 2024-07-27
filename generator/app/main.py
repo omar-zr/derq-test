@@ -1,8 +1,12 @@
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from app.generator import DataGenerator
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
+
 
 data_generator = DataGenerator(config={
     'counts_rate': 50,
