@@ -1,115 +1,67 @@
-import { Box, Container, Text } from "@chakra-ui/react"
-import { createFileRoute } from "@tanstack/react-router"
-
-// import { DateRangePicker } from 'react-date-range';
-import useAuth from "../../hooks/useAuth"
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
-
-import { AnalService } from "../../client";
-import { useQuery } from "@tanstack/react-query"
-import Chart from "react-apexcharts";
+import { Container, Box, Text, Button, CheckboxGroup, Checkbox, Flex } from "@chakra-ui/react";
+import { DateRange } from "react-date-range";
+import useAuth from "../../hooks/useAuth";
+import { createFileRoute } from "@tanstack/react-router";
+import { useDateRange } from "../../hooks/useDateRange";
+import { useFilter } from "../../hooks/useApproachFilter";
+import LineChart from "../../components/Index/LineChart";
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
-})
+});
 
-function getDataQueryOptions() {
-  return {
-    queryFn: () =>
-      AnalService.readData({ start_date: "2024-07-17", end_date: "2024-07-18" }),
-    queryKey: ["chart", 2],
-  }
-}
-
-function LineChart() {
-  let {
-    data: data } = useQuery({
-      ...getDataQueryOptions(),
-      placeholderData: (prevData) => prevData,
-    })
-
-  var state = {
-    options: {
-      chart: {
-        id: 'counts per approach'
-      },
-      xaxis: {
-        categories: data?.[0].hours.map(item => item.time)!
-      }
-    },
-    series: [{
-      name: data?.[0].approach,
-      data: data?.[0].hours.map(item => item.count)!
-    },
-    {
-      name: data?.[1].approach,
-      data: data?.[1].hours.map(item => item.count)!
-    },
-    {
-      name: data?.[2].approach,
-      data: data?.[2].hours.map(item => item.count)!
-    },
-    {
-      name: data?.[3].approach,
-      data: data?.[3].hours.map(item => item.count)!
-    },
-    ]
-  }
-
-  return (
-    <>
-      <Chart
-        options={state.options}
-        series={state.series}
-        type="line"
-        width="100%"
-        height="400"
-      />
-    </>
-  )
-}
-
-// function handleRangeSelect(ranges: any) {
-//   console.log(ranges);
-//   state.ranges = ranges
-// }
-
-// let state = {
-//   date: new Date(),
-//   ranges: [
-//     {
-//       startDate: new Date(),
-//       endDate: new Date().getDate() - 7,
-//       key: 'selection',
-//     },
-//   ],
-// }
 function Dashboard() {
-  const { user: currentUser } = useAuth()
-  // const selectionRange = {
-  //   startDate: new Date(),
-  //   endDate: new Date(),
-  //   key: 'selection',
-  // }
+  const { user: currentUser } = useAuth();
+  const { dateRange, isDateRangePickerVisible, toggleDateRangePicker, handleDateRangeSelect } = useDateRange();
+  const { filter, stringFilter, handleFilterChange, handleStringFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS } = useFilter();
+
   return (
-    <>
-      <Container maxW="full">
-        <Box pt={12} m={4}>
-          <Text fontSize="2xl">
-            Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
-          </Text>
-          <Text>Welcome back, nice to see you again!</Text>
+    <Container maxW="full">
+      <Box pt={12} m={4}>
+        <Text fontSize="2xl">Hi, {currentUser?.full_name || currentUser?.email} 👋🏼</Text>
+        <Text>Welcome back, nice to see you again!</Text>
+      </Box>
+      <Button onClick={toggleDateRangePicker}>
+        {isDateRangePickerVisible ? "Hide Date Range Picker" : "Show Date Range Picker"}
+      </Button>
+      {isDateRangePickerVisible && (
+        <DateRange
+          ranges={dateRange}
+          onChange={handleDateRangeSelect}
+        />
+      )}
+      <Flex mt={4} wrap="wrap" gap={4}>
+        <Box>
+          <Text mb={2}>Approach Filter</Text>
+          <CheckboxGroup value={filter} onChange={handleFilterChange}>
+            {FILTER_OPTIONS.map(option => (
+              <Checkbox key={option} value={option}>
+                {option}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
         </Box>
-        {/* <DateRangePicker
-          ranges={[selectionRange]}
-          onChange={(handleRangeSelect)}
-          showDateDisplay={true}
-        /> */}
-        <Box style={{ width: '100%' }}>
-          <LineChart />
+        <Box>
+          <Text mb={2}>Type Filter</Text>
+          <CheckboxGroup value={stringFilter} onChange={handleStringFilterChange}>
+            {STRING_FILTER_OPTIONS.map(option => (
+              <Checkbox key={option} value={option}>
+                {option}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
         </Box>
-      </Container>
-    </>
-  )
+      </Flex>
+      <Box style={{ width: '100%' }}>
+        <LineChart
+          startDate={dateRange[0].startDate}
+          endDate={dateRange[0].endDate}
+          filter={filter}
+        />
+      </Box>
+    </Container>
+  );
 }
+
+export default Dashboard;
+

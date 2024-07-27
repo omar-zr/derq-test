@@ -19,7 +19,6 @@ import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutSensorImport } from './routes/_layout/sensor'
-import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutHealthImport } from './routes/_layout/health'
 import { Route as LayoutGeneratorImport } from './routes/_layout/generator'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
@@ -63,11 +62,6 @@ const LayoutSettingsRoute = LayoutSettingsImport.update({
 
 const LayoutSensorRoute = LayoutSensorImport.update({
   path: '/sensor',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
-const LayoutItemsRoute = LayoutItemsImport.update({
-  path: '/items',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -122,10 +116,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutHealthImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/items': {
-      preLoaderRoute: typeof LayoutItemsImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/sensor': {
       preLoaderRoute: typeof LayoutSensorImport
       parentRoute: typeof LayoutImport
@@ -148,7 +138,6 @@ export const routeTree = rootRoute.addChildren([
     LayoutAdminRoute,
     LayoutGeneratorRoute,
     LayoutHealthRoute,
-    LayoutItemsRoute,
     LayoutSensorRoute,
     LayoutSettingsRoute,
     LayoutIndexRoute,

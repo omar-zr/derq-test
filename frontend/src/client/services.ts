@@ -14,10 +14,6 @@ import type {
   UsersPublic,
   UserUpdate,
   UserUpdateMe,
-  ItemCreate,
-  ItemPublic,
-  ItemsPublic,
-  ItemUpdate,
   VechilePerApproach,
   HealthCheck,
   HourlyData,
@@ -366,50 +362,6 @@ export class UsersService {
   }
 }
 
-export type TDataTestEmail = {
-  emailTo: string
-}
-
-export class UtilsService {
-  /**
-   * Test Email
-   * Test emails.
-   * @returns Message Successful Response
-   * @throws ApiError
-   */
-  public static testEmail(data: TDataTestEmail): CancelablePromise<Message> {
-    const { emailTo } = data
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/utils/test-email/",
-      query: {
-        email_to: emailTo,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-}
-
-export type TDataReadItems = {
-  limit?: number
-  skip?: number
-}
-export type TDataCreateItem = {
-  requestBody: ItemCreate
-}
-export type TDataReadItem = {
-  id: number
-}
-export type TDataUpdateItem = {
-  id: number
-  requestBody: ItemUpdate
-}
-export type TDataDeleteItem = {
-  id: number
-}
-
 export type TDataReadChart = {
   start_date: string
   end_date: string
@@ -429,116 +381,6 @@ export type TDataRunGenerator = {
   failure: string
 }
 
-export class ItemsService {
-  /**
-   * Read Items
-   * Retrieve items.
-   * @returns ItemsPublic Successful Response
-   * @throws ApiError
-   */
-  public static readItems(
-    data: TDataReadItems = {},
-  ): CancelablePromise<ItemsPublic> {
-    const { limit = 100, skip = 0 } = data
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/items/",
-      query: {
-        skip,
-        limit,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Create Item
-   * Create new item.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static createItem(
-    data: TDataCreateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { requestBody } = data
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/items/",
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Read Item
-   * Get item by ID.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static readItem(data: TDataReadItem): CancelablePromise<ItemPublic> {
-    const { id } = data
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Update Item
-   * Update an item.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static updateItem(
-    data: TDataUpdateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { id, requestBody } = data
-    return __request(OpenAPI, {
-      method: "PUT",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Delete Item
-   * Delete an item.
-   * @returns Message Successful Response
-   * @throws ApiError
-   */
-  public static deleteItem(data: TDataDeleteItem): CancelablePromise<Message> {
-    const { id } = data
-    return __request(OpenAPI, {
-      method: "DELETE",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-}
-
 export class AnalService {
   /**
    * Read Data
@@ -547,8 +389,10 @@ export class AnalService {
    * @throws ApiError
    */
   public static readData(data: TDataReadChart): CancelablePromise<Array<VechilePerApproach>> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
     const { start_date, end_date } = data
-    return __request(OpenAPI, {
+    return __request(configs, {
       method: "GET",
       url: "/api/v1/sensors/counts?start_date={start_date}&end_date={end_date}",
       path: {
@@ -569,10 +413,17 @@ export class HealthService {
    * @returns HealthCheck Successful Response
    * @throws ApiError
    */
-  public static readData(): CancelablePromise<Array<HealthCheck>> {
-    return __request(OpenAPI, {
+  public static readData(data: TDataReadChart): CancelablePromise<Array<HealthCheck>> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
+    let { start_date, end_date } = data
+    return __request(configs, {
       method: "GET",
       url: "/api/v1/sensors/sensorhealth/gaps",
+      path: {
+        start_date,
+        end_date
+      },
       errors: {
         422: `Validation Error`,
       },
@@ -588,10 +439,10 @@ export class SensorService {
    * @throws ApiError
    */
   public static readData(data: TDataReadChart): CancelablePromise<Array<HourlyData>> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
     let { start_date, end_date } = data
-    start_date = "2024-05-01";
-    end_date = "2024-07-18"
-    return __request(OpenAPI, {
+    return __request(configs, {
       method: "GET",
       url: "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}",
       path: {
@@ -611,12 +462,13 @@ export class GeneratorService {
    * @returns Generator Successful Response
    * @throws ApiError
    */
-  public static readData(data: TDataRunGenerator): CancelablePromise<GeneratorData> {
+  public static getStatus(): CancelablePromise<GeneratorData> {
     // let { car, motorcycle, pedestrian, bicycle, nb, sb, wb, eb, failure } = data
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}",
-      body: data,
+    let configs = OpenAPI
+    configs.BASE = "http://127.0.0.1:8000"
+    return __request(configs, {
+      method: "GET",
+      url: "/status",
       errors: {
         422: `Validation Error`,
       },

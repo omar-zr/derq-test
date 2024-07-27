@@ -4,6 +4,8 @@ import CarsForm from "../../components/Generator/CarsForm";
 import AttributesForm from "../../components/Generator/AttributesForm";
 import FailureForm from "../../components/Generator/FailureForm";
 import { useGenerator } from "../../hooks/useGenerator";
+import { GeneratorService } from "../../client/services";
+import { useQuery } from "@tanstack/react-query"
 
 export const Route = createFileRoute("/_layout/generator")({
     component: Generator,
@@ -27,6 +29,30 @@ function Generator() {
     const failureForm = useGenerator({
         Percentage: ''
     });
+
+    function getStatus() {
+        return {
+            queryFn: () =>
+                GeneratorService.getStatus(),
+            queryKey: ["generator", 0],
+        }
+    }
+
+    function TableTest() {
+
+        const {
+            data: generator,
+            isPending
+        } = useQuery({
+            ...getStatus(),
+            placeholderData: (prevData) => prevData,
+        })
+
+        console.log(generator)
+        console.log(isPending)
+
+        return (<Box></Box>)
+    }
 
     const handleSubmit = () => {
         const isCarFormValid = carForm.validate();
@@ -73,6 +99,7 @@ function Generator() {
             >
                 Run
             </Button>
+            <TableTest></TableTest>
         </Container>
     );
 }

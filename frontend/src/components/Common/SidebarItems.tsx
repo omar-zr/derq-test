@@ -7,7 +7,6 @@ import type { UserPublic } from "../../client"
 
 const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
-  { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiBriefcase, title: "System Health", path: "/health" },
   { icon: FiBriefcase, title: "Sensor Data", path: "/sensor" },
   { icon: FiBriefcase, title: "Generator", path: "/generator" },
