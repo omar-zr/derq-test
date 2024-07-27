@@ -1,4 +1,4 @@
-# Full Stack FastAPI Template
+# Derq Test
 
 ## Technology Stack and Features
 
@@ -23,10 +23,15 @@ You can run:   ```docker compose up -d```
 
 ✨ It just works. ✨
 
-## Backend Development
+## Backend MD
 
 Backend docs: [backend/README.md](./backend/README.md).
 
-## Frontend Development
+## Frontend MD
 
 Frontend docs: [frontend/README.md](./frontend/README.md).
+
+
+## Generator MD
+
+Frontend docs: [frontend/README.md](./generator/README.md).

@@ -1,4 +1,4 @@
-# FastAPI Project - Backend
+# Derq Project - Backend
 
 ## Requirements
 
