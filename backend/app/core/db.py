@@ -1,8 +1,11 @@
 import pandas as pd
 from app import crud
+from app.models.sensor_data_models import SensorData
+from app.models.sensor_health_models import SensorHealth
+from app.models.sensor_models import Sensor
+from app.models.user_models import User, UserCreate
 from sqlalchemy import create_engine
 from sqlmodel import Session, select
-from app.models import User, UserCreate, Sensor, SensorData, SensorHealth
 from app.core.config import settings
 import logging
 

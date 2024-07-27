@@ -5,7 +5,11 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
-from app.models import   ApproachData, DetailedApproachCount, GapDetails, HourlyApproachCount, HourlyData, Sensor, SensorClass, Approach, SensorData, SensorDataCreate, SensorDataPublic, SensorDataPublicList, SensorHealth, SensorHealthCreate
+from app.models.sensor_data_models import Approach, SensorClass, SensorData, SensorDataPublic
+from app.models.sensor_health_models import SensorHealth
+from app.models.sensor_models import Sensor
+from app.schema.sensor_data_schemas import ApproachData, HourlyApproachCount, HourlyData, SensorDataCreate, SensorDataPublicList
+from app.schema.sensor_health_schemas import GapDetails, SensorHealthCreate
 from fastapi import APIRouter, HTTPException, Query # type: ignore
 from sqlmodel import func, select # type: ignore
 

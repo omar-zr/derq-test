@@ -1,5 +1,10 @@
+from mailbox import Message
 import uuid
 from typing import Any
+
+from app.models.user_models import UpdatePassword, User, UserCreate, UserPublic, UserRegister, UserUpdate, UserUpdateMe
+from app.schema.user_schemas import UsersPublic
+from app.schema.common_schemas import Message
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import col, delete, func, select
@@ -12,17 +17,7 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
-from app.models import (
-    Message,
-    UpdatePassword,
-    User,
-    UserCreate,
-    UserPublic,
-    UserRegister,
-    UsersPublic,
-    UserUpdate,
-    UserUpdateMe,
-)
+
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter()
