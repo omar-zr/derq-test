@@ -488,10 +488,10 @@ export class GeneratorService {
   public static getStatus(): CancelablePromise<GeneratorData> {
     // let { car, motorcycle, pedestrian, bicycle, nb, sb, wb, eb, failure } = data
     let configs = OpenAPI
-    configs.BASE = "http://127.0.0.1:8000"
+    configs.BASE = "generator"
     return __request(configs, {
       method: "GET",
-      url: "/status",
+      url: "/generator/status",
       errors: {
         422: `Validation Error`,
       },

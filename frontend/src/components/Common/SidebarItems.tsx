@@ -9,7 +9,7 @@ const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
   { icon: FiBriefcase, title: "System Health", path: "/health" },
   { icon: FiBriefcase, title: "Sensor Data", path: "/sensor" },
-  { icon: FiBriefcase, title: "Generator", path: "/generator" },
+  { icon: FiBriefcase, title: "Generator", path: "/configuration" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]
 

@@ -1,12 +1,24 @@
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from app.generator import DataGenerator
+from starlette.middleware.cors import CORSMiddleware
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173", # For Dev access
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # List of allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 data_generator = DataGenerator(config={
     'counts_rate': 50,

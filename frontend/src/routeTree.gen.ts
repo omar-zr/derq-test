@@ -71,7 +71,7 @@ const LayoutHealthRoute = LayoutHealthImport.update({
 } as any)
 
 const LayoutGeneratorRoute = LayoutGeneratorImport.update({
-  path: '/generator',
+  path: '/configuration',
   getParentRoute: () => LayoutRoute,
 } as any)
 
