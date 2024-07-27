@@ -33,3 +33,7 @@ def configure_generator(config: GeneratorConfig):
     data_generator.update_config(config.dict())
     return {"status": "configured"}
 
+@app.get("/status")
+def get_status():
+    status = data_generator.get_status()
+    return {"status": status}

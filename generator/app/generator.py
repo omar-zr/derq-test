@@ -137,3 +137,13 @@ class DataGenerator:
 
     def update_config(self, new_config):
         self.config.update(new_config)
+    
+    def get_status(self):
+        return {
+            'running': self.running,
+            'config': self.config
+        }
+
+
+
+
