@@ -28,6 +28,14 @@ export type VechilePerApproach = {
   hours: Array<CountPerHour>
 }
 
+export type Sensors = {
+  location: string,
+  name: string,
+  manufacture_id: string,
+  id: string,
+  note: string,
+}
+
 export type CountPerHour = {
   time: string,
   count: number
@@ -42,13 +50,27 @@ export type HealthCheck = {
 export type HourlyData = {
   hour: string,
   totalCount: number,
-  results: any
+  results: any,
 }
 
 export type GeneratorData = {
-  // hour: string,
-  // totalCount: number,
-  // results: any
+  status: GeneratorStatus,
+}
+
+export type GeneratorStatus = {
+  running: boolean,
+  config: GeneratorConfig,
+}
+
+export type GeneratorConfig = {
+  counts_rate: number,
+  approach_prob: number[],
+  class_prob: number[],
+  downtime_prob: number,
+}
+
+export type ConfigureData = {
+  status: string,
 }
 
 export type ItemUpdate = {

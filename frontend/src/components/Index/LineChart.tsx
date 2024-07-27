@@ -9,23 +9,25 @@ interface LineChartProps {
     endDate: Date;
     filter: string;
     stringFilter: string;
+    sensorFilter: string;
 }
 
-function getDataQueryOptions(startDate: Date, endDate: Date, filter: string, stringFilter: string) {
+function getDataQueryOptions(startDate: Date, endDate: Date, filter: string, stringFilter: string, sensorFilter: string) {
     return {
         queryFn: () =>
             AnalService.readData({
                 start_date: formatDate(startDate),
                 end_date: formatDate(endDate),
                 approach: filter,
-                type: stringFilter
+                type: stringFilter,
+                sensor_id: sensorFilter, 
             }),
-        queryKey: ["chart", startDate, endDate, filter, stringFilter],
+        queryKey: ["chart", startDate, endDate, filter, stringFilter, sensorFilter],
     };
 }
 
-function LineChart({ startDate, endDate, filter, stringFilter }: LineChartProps) {
-    const { data } = useQuery(getDataQueryOptions(startDate, endDate, filter, stringFilter));
+function LineChart({ startDate, endDate, filter, stringFilter, sensorFilter }: LineChartProps) {
+    const { data } = useQuery(getDataQueryOptions(startDate, endDate, filter, stringFilter, sensorFilter));
 
     const state = {
         options: {

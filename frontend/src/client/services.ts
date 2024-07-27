@@ -18,6 +18,8 @@ import type {
   HealthCheck,
   HourlyData,
   GeneratorData,
+  ConfigureData,
+  Sensors,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -367,20 +369,14 @@ export type TDataReadChart = {
   end_date: string
   approach: string
   type: string
+  sensor_id: string
 }
 
 export type TDataRunGenerator = {
-  car: string
-  motorcycle: string
-  pedestrian: string
-  bicycle: string
-
-  nb: string
-  sb: string
-  wb: string
-  eb: string
-
-  failure: string
+  counts_rate: number,
+  approach_prob: number[],
+  class_prob: number[],
+  downtime_prob: number,
 }
 
 export class AnalService {
@@ -393,12 +389,14 @@ export class AnalService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<VechilePerApproach>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    const { start_date, end_date, approach, type } = data
+    const { start_date, end_date, approach, type, sensor_id } = data
     let endpoint = "/api/v1/sensors/counts?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&class_type={type}'
+    if (sensor_id != null)
+      endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
       url: endpoint,
@@ -406,8 +404,27 @@ export class AnalService {
         start_date,
         end_date,
         approach,
-        type
+        type,
+        sensor_id
       },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+
+  /**
+   * Get Sensors
+   * @returns Sensors Successful Response
+   * @throws ApiError
+   */
+  public static getSensors(): CancelablePromise<Array<Sensors>> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
+    let endpoint = "/api/v1/sensors/info"
+    return __request(configs, {
+      method: "GET",
+      url: endpoint,
       errors: {
         422: `Validation Error`,
       },
@@ -425,12 +442,14 @@ export class HealthService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<HealthCheck>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    const { start_date, end_date, approach, type } = data
+    const { start_date, end_date, approach, type, sensor_id } = data
     let endpoint = "/api/v1/sensors/sensorhealth/gaps?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&class_type={type}'
+    if (sensor_id != null)
+      endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
       url: endpoint,
@@ -438,7 +457,8 @@ export class HealthService {
         start_date,
         end_date,
         approach,
-        type
+        type,
+        sensor_id
       },
       errors: {
         422: `Validation Error`,
@@ -457,12 +477,14 @@ export class SensorService {
   public static readData(data: TDataReadChart): CancelablePromise<Array<HourlyData>> {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
-    const { start_date, end_date, approach, type } = data
+    const { start_date, end_date, approach, type, sensor_id } = data
     let endpoint = "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&class_type={type}'
+    if (sensor_id != null)
+      endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
       url: endpoint,
@@ -470,7 +492,8 @@ export class SensorService {
         start_date,
         end_date,
         approach,
-        type
+        type,
+        sensor_id
       },
       errors: {
         422: `Validation Error`,
@@ -481,17 +504,68 @@ export class SensorService {
 
 export class GeneratorService {
   /**
-   * Run Generator
+   * Get Generator Status
    * @returns Generator Successful Response
    * @throws ApiError
    */
   public static getStatus(): CancelablePromise<GeneratorData> {
-    // let { car, motorcycle, pedestrian, bicycle, nb, sb, wb, eb, failure } = data
     let configs = OpenAPI
-    configs.BASE = "generator"
+    configs.BASE = "http://localhost"
     return __request(configs, {
       method: "GET",
       url: "/generator/status",
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+
+  /**
+   * Configure Generator Data
+   * @returns Configure Successful Response
+   * @throws ApiError
+   */
+  public static configureGenerator(data: TDataRunGenerator): CancelablePromise<ConfigureData> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
+    return __request(configs, {
+      method: "POST",
+      url: "/generator/configure",
+      body: data,
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+
+  /**
+   * Start Generator
+   * @returns Configure Successful Response
+   * @throws ApiError
+   */
+  public static startGenerator(): CancelablePromise<ConfigureData> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
+    return __request(configs, {
+      method: "POST",
+      url: "/generator/start",
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+
+  /**
+   * Start Generator
+   * @returns Configure Successful Response
+   * @throws ApiError
+   */
+  public static stopGenerator(): CancelablePromise<ConfigureData> {
+    let configs = OpenAPI
+    configs.BASE = "http://localhost"
+    return __request(configs, {
+      method: "POST",
+      url: "/generator/stop",
       errors: {
         422: `Validation Error`,
       },

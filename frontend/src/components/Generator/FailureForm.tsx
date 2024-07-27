@@ -1,7 +1,8 @@
 import { Box, FormLabel, Input, Table, Tbody, Td, Tr, useColorModeValue } from "@chakra-ui/react";
 
 type Inputs = {
-    Percentage: string;
+    CountsRate: string;
+    Downtime: string;
 };
 
 type FailureFormProps = {
@@ -26,15 +27,30 @@ const FailureForm = ({ values, setValues }: FailureFormProps) => {
                 <Tbody>
                     <Tr>
                         <Td>
-                            <FormLabel color={color}>Percentage</FormLabel>
+                            <FormLabel color={color}>Counts rate</FormLabel>
                         </Td>
                         <Td>
                             <Input
-                                id="Percentage"
+                                id="CountsRate"
                                 placeholder="%"
                                 type="number"
                                 w="75px"
-                                value={values.Percentage}
+                                value={values.CountsRate}
+                                onChange={handleChange}
+                            />
+                        </Td>
+                    </Tr>
+                    <Tr>
+                        <Td>
+                            <FormLabel color={color}>Downtime</FormLabel>
+                        </Td>
+                        <Td>
+                            <Input
+                                id="Downtime"
+                                placeholder="%"
+                                type="number"
+                                w="75px"
+                                value={values.Downtime}
                                 onChange={handleChange}
                             />
                         </Td>

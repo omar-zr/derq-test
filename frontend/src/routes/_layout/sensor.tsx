@@ -4,7 +4,7 @@ import { DateRange } from "react-date-range";
 import SensorTable from "../../components/Sensor/SensorTable";
 import { useSensorsData } from "../../hooks/useSensorsData";
 import { useDateRange } from "../../hooks/useDateRange";
-import { useFilter } from "../../hooks/useApproachFilter";
+import { useFilter } from "../../hooks/useFilter";
 
 export const Route = createFileRoute("/_layout/sensor")({
     component: SensorsData,
@@ -12,8 +12,8 @@ export const Route = createFileRoute("/_layout/sensor")({
 
 function SensorsData() {
     const { dateRange, isDateRangePickerVisible, toggleDateRangePicker, handleDateRangeSelect } = useDateRange();
-    const { filter, stringFilter, handleFilterChange, handleStringFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS } = useFilter();
-    const { data, isLoading } = useSensorsData(dateRange[0].startDate, dateRange[0].endDate, filter, stringFilter);
+    const { filter, stringFilter, sensorFilter, handleFilterChange, handleStringFilterChange, handleSensorFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS, sensorOptions } = useFilter();
+    const { data, isLoading } = useSensorsData(dateRange[0].startDate, dateRange[0].endDate, filter, stringFilter, sensorFilter);
 
     return (
         <Container maxW="full">
@@ -41,6 +41,13 @@ function SensorsData() {
                     {STRING_FILTER_OPTIONS.map((option: string) => (
                         <option key={option} value={option}>
                             {option}
+                        </option>
+                    ))}
+                </Select>
+                <Select value={sensorFilter} onChange={(e) => handleSensorFilterChange(e.target.value)}>
+                    {sensorOptions.map((sensor) => (
+                        <option key={sensor.id} value={sensor.id}>
+                            {sensor.name}
                         </option>
                     ))}
                 </Select>

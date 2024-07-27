@@ -1,4 +1,5 @@
-import { Box, FormLabel, Input, Table, Tbody, Td, Tr, useColorModeValue } from "@chakra-ui/react";
+import { Box, FormLabel, Input, Table, Tbody, Td, Tr, useColorModeValue, Alert } from "@chakra-ui/react";
+import { useState } from "react";
 
 type Inputs = {
     Car: string;
@@ -14,10 +15,20 @@ type CarsFormProps = {
 
 const CarsForm = ({ values, setValues }: CarsFormProps) => {
     const color = useColorModeValue("inherit", "ui.light");
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setValues(prev => ({ ...prev, [id]: value }));
+        const newValues = { ...values, [id]: value };
+        const sum = Object.values(newValues).reduce((acc, curr) => acc + parseFloat(curr || "0"), 0);
+
+        if (sum > 1) {
+            setError("The sum of all values must not exceed 1.");
+        } else {
+            setError(null);
+        }
+
+        setValues(newValues);
     };
 
     return (
@@ -37,7 +48,7 @@ const CarsForm = ({ values, setValues }: CarsFormProps) => {
                                     id={attr}
                                     placeholder="%"
                                     type="number"
-                                    w="50px"
+                                    w="75px"
                                     value={values[attr as keyof Inputs]}
                                     onChange={handleChange}
                                 />
@@ -46,6 +57,7 @@ const CarsForm = ({ values, setValues }: CarsFormProps) => {
                     ))}
                 </Tbody>
             </Table>
+            {error && <Alert status="error" mt={4}>{error}</Alert>}
         </Box>
     );
 };

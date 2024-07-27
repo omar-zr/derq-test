@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth";
 import LineChart from "../../components/Index/LineChart";
 import { useDateRange } from "../../hooks/useDateRange";
 import { createFileRoute } from "@tanstack/react-router";
-import { useFilter } from "../../hooks/useApproachFilter";
+import { useFilter } from "../../hooks/useFilter";
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_layout/")({
 function Dashboard() {
   const { user: currentUser } = useAuth();
   const { dateRange, isDateRangePickerVisible, toggleDateRangePicker, handleDateRangeSelect } = useDateRange();
-  const { filter, stringFilter, handleFilterChange, handleStringFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS } = useFilter();
+  const { filter, stringFilter, sensorFilter, handleFilterChange, handleStringFilterChange, handleSensorFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS, sensorOptions } = useFilter();
 
   return (
     <Container maxW="full">
@@ -45,6 +45,13 @@ function Dashboard() {
             </option>
           ))}
         </Select>
+        <Select value={sensorFilter} onChange={(e) => handleSensorFilterChange(e.target.value)}>
+          {sensorOptions.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          ))}
+        </Select>
       </Flex>
       <Box style={{ width: '100%' }} mt={4}>
         <LineChart
@@ -52,6 +59,7 @@ function Dashboard() {
           endDate={dateRange[0].endDate}
           filter={filter}
           stringFilter={stringFilter}
+          sensorFilter={sensorFilter}
         />
       </Box>
     </Container>

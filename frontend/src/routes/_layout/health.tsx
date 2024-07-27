@@ -4,7 +4,7 @@ import { useHealthData } from "../../hooks/useHealthData";
 import HealthTable from "../../components/Health/HealthTable";
 import { useDateRange } from "../../hooks/useDateRange";
 import { createFileRoute } from "@tanstack/react-router";
-import { useFilter } from "../../hooks/useApproachFilter";
+import { useFilter } from "../../hooks/useFilter";
 
 export const Route = createFileRoute("/_layout/health")({
     component: HealthCheck,
@@ -12,8 +12,8 @@ export const Route = createFileRoute("/_layout/health")({
 
 function HealthCheck() {
     const { dateRange, isDateRangePickerVisible, toggleDateRangePicker, handleDateRangeSelect } = useDateRange();
-    const { filter, stringFilter, handleFilterChange, handleStringFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS } = useFilter();
-    const { data, isLoading } = useHealthData(dateRange[0].startDate, dateRange[0].endDate, filter, stringFilter);
+    const { filter, stringFilter, sensorFilter, handleFilterChange, handleStringFilterChange, handleSensorFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS, sensorOptions } = useFilter();
+    const { data, isLoading } = useHealthData(dateRange[0].startDate, dateRange[0].endDate, filter, stringFilter, sensorFilter);
 
     return (
         <Container maxW="full">
@@ -41,6 +41,13 @@ function HealthCheck() {
                     {STRING_FILTER_OPTIONS.map((option: string) => (
                         <option key={option} value={option}>
                             {option}
+                        </option>
+                    ))}
+                </Select>
+                <Select value={sensorFilter} onChange={(e) => handleSensorFilterChange(e.target.value)}>
+                    {sensorOptions.map((option) => (
+                        <option key={option.id} value={option.id}>
+                            {option.name}
                         </option>
                     ))}
                 </Select>
