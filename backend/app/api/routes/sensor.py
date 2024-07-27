@@ -5,13 +5,9 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
-from app.models.sensor_data_models import Approach, SensorClass, SensorData, SensorDataPublic
-from app.models.sensor_health_models import SensorHealth
-from app.models.sensor_models import Sensor
-from app.schema.sensor_data_schemas import ApproachData, HourlyApproachCount, HourlyData, SensorDataCreate, SensorDataPublicList
-from app.schema.sensor_health_schemas import GapDetails, SensorHealthCreate
-from fastapi import APIRouter, HTTPException, Query # type: ignore
-from sqlmodel import func, select # type: ignore
+from app.models import ApproachData, DetailedApproachCount, GapDetails, HourlyApproachCount, HourlyData, Sensor, SensorClass, Approach, SensorData, SensorDataCreate, SensorDataPublic, SensorDataPublicList, SensorHealth, SensorHealthCreate
+from fastapi import APIRouter, HTTPException, Query  # type: ignore
+from sqlmodel import func, select  # type: ignore
 
 from app.api.deps import CurrentUser, SessionDep
 
@@ -20,10 +16,10 @@ router = APIRouter()
 # Response model for read_items
 class HourlyCount(BaseModel):
     hour: datetime
-    count: int 
+    count: int
 
 @router.get("/", response_model=SensorDataPublicList)
-def getSensorData(
+def get_sensor_data(
     session: SessionDep,
     current_user: CurrentUser,
     skip: int = 0,
@@ -37,7 +33,6 @@ def getSensorData(
     """
     Retrieve SensorData with optional filtering based on class_type, approach, sensor_id, and time range.
     """
-
     query = select(SensorData)
     
     # Apply filters
@@ -99,11 +94,8 @@ def get_hourly_counts(
     """
     Returns detailed hourly counts for a specific date range, sensor, approach, and class.
     """
-
-    # Define the hour truncation
     hour_trunc = func.date_trunc("hour", SensorData.time)
 
-    # Base query
     query = select(
         hour_trunc.label("hour"),
         SensorData.approach,
@@ -113,7 +105,6 @@ def get_hourly_counts(
         SensorData.time <= end_date
     )
 
-    # Apply filters
     if sensor_id:
         query = query.where(SensorData.sensor_id == sensor_id)
 
@@ -131,14 +122,11 @@ def get_hourly_counts(
         except KeyError:
             raise HTTPException(status_code=400, detail="Invalid sensorclass value")
 
-    # Group by hour, approach.
     query = query.group_by(hour_trunc, SensorData.approach)
     query = query.order_by(hour_trunc)
 
-    # Execute the query and fetch results
     results = session.execute(query).all()
 
-    # Structure the response
     approach_dict = {}
     for result in results:
         hour, approach, count = result
@@ -149,8 +137,6 @@ def get_hourly_counts(
     approach_list = [ApproachData(approach=approach, hours=hours) for approach, hours in approach_dict.items()]
 
     return approach_list
-
-
 
 def format_duration(duration: timedelta) -> str:
     seconds = int(duration.total_seconds())
@@ -168,7 +154,6 @@ def format_duration(duration: timedelta) -> str:
     
     return ', '.join(parts)
 
-
 @router.get("/sensorhealth/gaps", response_model=List[GapDetails])
 def get_sensor_health_gaps(
     session: SessionDep,
@@ -178,7 +163,6 @@ def get_sensor_health_gaps(
     Returns gaps longer than 5 minutes between consecutive SensorHealth rows.
     Optionally filter by sensor_id.
     """
-    # Fetch SensorHealth records ordered by time and optionally filter by sensor_id
     query = session.query(SensorHealth).order_by(SensorHealth.time)
     if sensor_id:
         query = query.filter(SensorHealth.sensor_id == sensor_id)
@@ -200,8 +184,6 @@ def get_sensor_health_gaps(
 
     return gaps
 
-
-
 @router.get("/detailed_counts", response_model=List[HourlyApproachCount])
 def get_detailed_hourly_counts(
     session: SessionDep,
@@ -215,11 +197,8 @@ def get_detailed_hourly_counts(
     """
     Returns detailed hourly counts for a specific date range, sensor, approach, and class.
     """
-
-    # Define the hour truncation
     hour_trunc = func.date_trunc("hour", SensorData.time)
 
-    # Base query
     query = select(
         hour_trunc.label("hour"),
         SensorData.approach,
@@ -230,7 +209,6 @@ def get_detailed_hourly_counts(
         SensorData.time <= end_date
     )
 
-    # Apply filters
     if sensor_id:
         query = query.where(SensorData.sensor_id == sensor_id)
 
@@ -248,17 +226,13 @@ def get_detailed_hourly_counts(
         except KeyError:
             raise HTTPException(status_code=400, detail="Invalid sensorclass value")
 
-    # Group by hour, approach, and class_type
     query = query.group_by(hour_trunc, SensorData.approach, SensorData.class_type)
     query = query.order_by(hour_trunc)
 
-    # Execute the query and fetch results
     results = session.execute(query).all()
 
-    # All possible approach and class_type combinations
     all_combinations = {f"{a}_{c}": 0 for a, c in product(Approach, SensorClass)}
 
-    # Structure the response
     hourly_counts = []
     for hour, hour_group in groupby(results, key=lambda x: x.hour):
         results_dict = all_combinations.copy()
@@ -275,8 +249,6 @@ def get_detailed_hourly_counts(
 
     return hourly_counts
 
-
-
 @router.post("/sensordata", response_model=SensorDataPublicList)
 def create_sensor_data(
     sensor_data: List[SensorDataCreate],
@@ -285,8 +257,6 @@ def create_sensor_data(
     """
     Receive sensor data and store it into the database.
     """
-
-    # Convert Pydantic models to SQLAlchemy models
     sensor_data_objects = [
         SensorData(
             sensor_id=data.sensor_id,
@@ -304,7 +274,6 @@ def create_sensor_data(
         session.rollback()
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-    # Convert stored objects to Pydantic models
     stored_data = [
         SensorDataPublic(
             sensor_id=obj.sensor_id,
@@ -317,7 +286,6 @@ def create_sensor_data(
 
     return SensorDataPublicList(data=stored_data, count=len(stored_data))
 
-
 @router.post("/health", response_model=List[SensorHealthCreate])
 def create_sensor_health(
     sensor_health_data: List[SensorHealthCreate],
@@ -326,8 +294,6 @@ def create_sensor_health(
     """
     Receive sensor health data and store it into the database.
     """
-
-    # Convert Pydantic models to SQLAlchemy models
     sensor_health_objects = [
         SensorHealth(
             sensor_id=data.sensor_id,
@@ -346,7 +312,6 @@ def create_sensor_health(
         session.rollback()
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
-    # Convert stored objects to Pydantic models
     stored_data = [
         SensorHealthCreate(
             sensor_id=obj.sensor_id,
@@ -360,8 +325,6 @@ def create_sensor_health(
 
     return stored_data
 
-from typing import List
-#  List All Sensors
 @router.get("/info", response_model=List[Sensor])
 def get_sensors(session: SessionDep) -> List[Sensor]:
     """
