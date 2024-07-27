@@ -103,7 +103,6 @@ def get_hourly_counts(
     query = select(
         hour_trunc.label("hour"),
         SensorData.approach,
-        SensorData.class_type,
         func.count(SensorData.id).label("count")
     ).select_from(SensorData).where(
         SensorData.time >= start_date,
@@ -128,8 +127,8 @@ def get_hourly_counts(
         except KeyError:
             raise HTTPException(status_code=400, detail="Invalid sensorclass value")
 
-    # Group by hour, approach, and class_type
-    query = query.group_by(hour_trunc, SensorData.approach, SensorData.class_type)
+    # Group by hour, approach.
+    query = query.group_by(hour_trunc, SensorData.approach)
     query = query.order_by(hour_trunc)
 
     # Execute the query and fetch results
@@ -138,7 +137,7 @@ def get_hourly_counts(
     # Structure the response
     approach_dict = {}
     for result in results:
-        hour, approach, class_type, count = result
+        hour, approach, count = result
         if approach not in approach_dict:
             approach_dict[approach] = []
         approach_dict[approach].append(HourlyData(time=hour, count=count))
