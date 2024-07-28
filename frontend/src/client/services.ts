@@ -394,7 +394,7 @@ export class AnalService {
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
-      endpoint += '&class_type={type}'
+      endpoint += '&sensorclass={type}'
     if (sensor_id != null)
       endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
@@ -482,7 +482,7 @@ export class SensorService {
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
-      endpoint += '&class_type={type}'
+      endpoint += '&sensorclass={type}'
     if (sensor_id != null)
       endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {

@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 from app.models.sensor_data_models import Approach, SensorClass, SensorData, SensorDataPublic
 from app.schema.sensor_data_schemas import ApproachData, HourlyApproachCount, HourlyData, SensorDataCreate, SensorDataPublicList
-from fastapi import APIRouter, HTTPException, Query
-from sqlmodel import func, select
+from fastapi import APIRouter, HTTPException, Query # type: ignore
+from sqlmodel import func, select # type: ignore
 
 from app.api.deps import CurrentUser, SessionDep
 
@@ -140,7 +140,6 @@ def get_hourly_counts(
     approach_list = [ApproachData(approach=approach, hours=hours) for approach, hours in approach_dict.items()]
 
     return approach_list
-
 
 
 @router.post("/", response_model=SensorDataPublicList)
