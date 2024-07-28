@@ -1,7 +1,7 @@
 from itertools import groupby, product
 import uuid
 from typing import Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from app.models.sensor_data_models import Approach, SensorClass, SensorData, SensorDataPublic
@@ -78,6 +78,26 @@ def getSensorData(
 
     return SensorDataPublicList(data=sensor_data_list, count=count)
 
+def downtime(session: SessionDep, sensor_id: uuid.UUID) -> int:
+    """
+    Checks if the sensor is up. Returns 0 if the sensor is up, otherwise returns -1.
+    """
+    # Implement your logic to check if the sensor is up
+    # For example, you might have a table that tracks sensor status
+    # Here, we assume a simple check based on a hypothetical SensorStatus table.
+
+    return -1
+    # from sqlalchemy import select
+    # from models import SensorStatus  # Assuming you have a SensorStatus model
+
+    # status_query = select(SensorStatus).where(SensorStatus.sensor_id == sensor_id)
+    # status = session.execute(status_query).scalar()
+
+    # if status and status.is_up:
+    #     return 0
+    # else:
+    #     return -1
+
 @router.get("/counts", response_model=List[ApproachData])
 def get_hourly_counts(
     session: SessionDep,
@@ -129,18 +149,117 @@ def get_hourly_counts(
     # Execute the query and fetch results
     results = session.execute(query).all()
 
+    # Check if there are no results
+    if not results:
+        if sensor_id:
+            status = downtime(session, sensor_id)
+            if status == 0:
+                return []  # Sensor is up but no data
+            else:
+                return [-1]  # Sensor is down
+        else:
+            return []  # No sensor_id provided, so we can't check downtime
+
+    # Generate a list of all hours within the date range
+    all_hours = [start_date + timedelta(hours=i) for i in range((end_date - start_date).days * 23 + (end_date - start_date).seconds // 3600 + 1)]
+
     # Structure the response
     approach_dict = {}
     for result in results:
         hour, approach, count = result
         if approach not in approach_dict:
-            approach_dict[approach] = []
-        approach_dict[approach].append(HourlyData(time=hour, count=count))
+            approach_dict[approach] = {h: 0 for h in all_hours}
+        approach_dict[approach][hour] = count
 
-    approach_list = [ApproachData(approach=approach, hours=hours) for approach, hours in approach_dict.items()]
+    approach_list = []
+    for approach, hour_counts in approach_dict.items():
+        hours = [HourlyData(time=hour, count=count) for hour, count in hour_counts.items()]
+        approach_list.append(ApproachData(approach=approach, hours=hours))
 
     return approach_list
 
+
+@router.get("/live", response_model=List[ApproachData])
+def get_latest_hour_counts(
+    session: SessionDep,
+    sensor_id: Optional[uuid.UUID] = None,
+    approach: Optional[str] = None,
+    sensorclass: Optional[str] = None
+) -> Any:
+    """
+    Returns detailed counts for the latest 1 hour, sensor, approach, and class.
+    """
+
+    # Define the current time and the start time for the latest 1 hour
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=1)
+
+    # Define the minute truncation
+    minute_trunc = func.date_trunc("minute", SensorData.time)
+
+    # Base query
+    query = select(
+        minute_trunc.label("minute"),
+        SensorData.approach,
+        func.count(SensorData.id).label("count")
+    ).select_from(SensorData).where(
+        SensorData.time >= start_time,
+        SensorData.time <= end_time
+    )
+
+    # Apply filters
+    if sensor_id:
+        query = query.where(SensorData.sensor_id == sensor_id)
+
+    if approach:
+        try:
+            approach_enum = Approach[approach]
+            query = query.where(SensorData.approach == approach_enum)
+        except KeyError:
+            raise HTTPException(status_code=400, detail="Invalid approach value")
+
+    if sensorclass:
+        try:
+            sensorclass_enum = SensorClass[sensorclass]
+            query = query.where(SensorData.class_type == sensorclass_enum)
+        except KeyError:
+            raise HTTPException(status_code=400, detail="Invalid sensorclass value")
+
+    # Group by minute, approach.
+    query = query.group_by(minute_trunc, SensorData.approach)
+    query = query.order_by(minute_trunc)
+
+    # Execute the query and fetch results
+    results = session.execute(query).all()
+
+    # Check if there are no results
+    if not results:
+        if sensor_id:
+            status = downtime(session, sensor_id)
+            if status == 0:
+                return []  # Sensor is up but no data
+            else:
+                return [-1]  # Sensor is down
+        else:
+            return []  # No sensor_id provided, so we can't check downtime
+
+    # Generate a list of all minutes within the latest 1 hour
+    all_minutes = [start_time + timedelta(minutes=i) for i in range(60)]
+
+    # Structure the response
+    approach_dict = {}
+    for result in results:
+        minute, approach, count = result
+        if approach not in approach_dict:
+            approach_dict[approach] = {m: 0 for m in all_minutes}
+        approach_dict[approach][minute] = count
+
+    approach_list = []
+    for approach, minute_counts in approach_dict.items():
+        minutes = [HourlyData(time=minute, count=count) for minute, count in minute_counts.items()]
+        approach_list.append(ApproachData(approach=approach, hours=minutes))
+
+    return approach_list
 
 @router.post("/", response_model=SensorDataPublicList)
 def create_sensor_data(

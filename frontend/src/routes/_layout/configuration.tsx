@@ -170,17 +170,18 @@ function Configuration() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost/api/v1/sensors/data/counts?start_date=2024-07-17&end_date=2024-07-18');
+                const response = await fetch('http://localhost/api/v1/sensors/data/live');
                 const data = await response.json();
                 const formattedData = data.flatMap((approach: any) => 
                     approach.hours.map((hour: any) => ({
-                        time: new Date(hour.time).getHours(),
+                        time: new Date(hour.time).getTime(),
                         count: hour.count,
                         approach: approach.approach
                     }))
                 );
 
                 const categories = Array.from(new Set(formattedData.map((d: any) => d.time)));
+                
                 const series = data.map((approach: any) => ({
                     name: approach.approach,
                     data: formattedData.filter((d: any) => d.approach === approach.approach).map((d: any) => d.count)
