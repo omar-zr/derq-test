@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_layout/health")({
 
 function HealthCheck() {
     const { dateRange, isDateRangePickerVisible, toggleDateRangePicker, handleDateRangeSelect } = useDateRange();
-    const { filter, stringFilter, sensorFilter, handleFilterChange, handleStringFilterChange, handleSensorFilterChange, FILTER_OPTIONS, STRING_FILTER_OPTIONS, sensorOptions } = useFilter();
+    const { filter, stringFilter, sensorFilter, handleSensorFilterChange, sensorOptions } = useFilter();
     const { data, isLoading } = useHealthData(dateRange[0].startDate, dateRange[0].endDate, filter, stringFilter, sensorFilter);
 
     return (
@@ -30,20 +30,6 @@ function HealthCheck() {
                 />
             )}
             <Flex mt={4} gap={4}>
-                <Select value={filter} onChange={(e) => handleFilterChange(e.target.value)}>
-                    {FILTER_OPTIONS.map((option: string) => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </Select>
-                <Select value={stringFilter} onChange={(e) => handleStringFilterChange(e.target.value)}>
-                    {STRING_FILTER_OPTIONS.map((option: string) => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
-                    ))}
-                </Select>
                 <Select value={sensorFilter} onChange={(e) => handleSensorFilterChange(e.target.value)}>
                     {sensorOptions.map((option) => (
                         <option key={option.id} value={option.id}>

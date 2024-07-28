@@ -395,7 +395,7 @@ export class AnalService {
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&sensorclass={type}'
-    if (sensor_id != null)
+    if (sensor_id != 'all')
       endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
@@ -448,7 +448,7 @@ export class HealthService {
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&class_type={type}'
-    if (sensor_id != null)
+    if (sensor_id != 'all')
       endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
@@ -483,7 +483,7 @@ export class SensorService {
       endpoint += '&approach={approach}'
     if (type != 'all')
       endpoint += '&sensorclass={type}'
-    if (sensor_id != null)
+    if (sensor_id != 'all')
       endpoint += '&sensor_id={sensor_id}'
     return __request(configs, {
       method: "GET",
