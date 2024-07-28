@@ -1,4 +1,5 @@
 import logging
+import os
 
 from sqlmodel import Session
 
@@ -15,8 +16,12 @@ def init() -> None:
 
 def main() -> None:
     logger.info("Creating initial data")
-    # init()
-    logger.info("Initial data created")
+    should_init = os.getenv("SHOULD_INIT", "False").lower() in ('true', '1', 't')
+    if should_init:
+        init()
+        logger.info("Initial data created")
+    else:
+        logger.info("Initialization skipped")
 
 
 if __name__ == "__main__":

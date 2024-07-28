@@ -9,7 +9,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter()
 
-@router.get("/info", response_model=List[Sensor])
+@router.get("/", response_model=List[Sensor])
 def get_sensors(session: SessionDep) -> List[Sensor]:
     """
     Retrieve a list of sensors from the database.

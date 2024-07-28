@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from app.generator import DataGenerator
@@ -25,7 +26,7 @@ data_generator = DataGenerator(config={
     'approach_prob': [0.25, 0.25, 0.25, 0.25],
     'class_prob': [0.4, 0.2, 0.2, 0.2],
     'downtime_prob': 0.01,
-    'base_url': 'http://backend/api/v1/sensors'
+    'base_url': os.getenv('BASE_URL')
 })
 
 class GeneratorConfig(BaseModel):

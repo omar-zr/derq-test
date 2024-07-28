@@ -14,7 +14,7 @@ class DataGenerator:
     def __init__(self, config):
         self.config = config
         self.running = False
-        self.base_url = config.get('base_url', 'http://backend/api/v1/sensors')
+        self.base_url = config.get('base_url', os.getenv('BASE_URL'))
         self.generate_event = threading.Event()
         self.auth_header = {}
         self.sensor_id = None
@@ -87,7 +87,7 @@ class DataGenerator:
                 }
                 payload.append(data)
 
-            self.send_data('/sensordata', payload)
+            self.send_data('/data', payload)
             time.sleep(60)  # Wait for a minute before sending the next batch
 
     def generate_health_data(self):

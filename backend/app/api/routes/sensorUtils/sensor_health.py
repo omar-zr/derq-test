@@ -28,7 +28,7 @@ def format_duration(duration: timedelta) -> str:
     
     return ', '.join(parts)
 
-@router.get("/sensorhealth/gaps", response_model=List[GapDetails])
+@router.get("/gaps", response_model=List[GapDetails])
 def get_sensor_health_gaps(
     session: SessionDep,
     sensor_id: Optional[uuid.UUID] = None
@@ -59,7 +59,7 @@ def get_sensor_health_gaps(
 
     return gaps
 
-@router.post("/health", response_model=List[SensorHealthCreate])
+@router.post("/", response_model=List[SensorHealthCreate])
 def create_sensor_health(
     sensor_health_data: List[SensorHealthCreate],
     session: SessionDep

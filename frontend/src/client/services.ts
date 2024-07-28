@@ -390,7 +390,7 @@ export class AnalService {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
     const { start_date, end_date, approach, type, sensor_id } = data
-    let endpoint = "/api/v1/sensors/counts?start_date={start_date}&end_date={end_date}"
+    let endpoint = "/api/v1/sensors/data/counts?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
@@ -443,7 +443,7 @@ export class HealthService {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
     const { start_date, end_date, approach, type, sensor_id } = data
-    let endpoint = "/api/v1/sensors/sensorhealth/gaps?start_date={start_date}&end_date={end_date}"
+    let endpoint = "/api/v1/sensors/health/gaps?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
@@ -478,7 +478,7 @@ export class SensorService {
     let configs = OpenAPI
     configs.BASE = "http://localhost"
     const { start_date, end_date, approach, type, sensor_id } = data
-    let endpoint = "/api/v1/sensors/detailed_counts?start_date={start_date}&end_date={end_date}"
+    let endpoint = "/api/v1/sensors/data/detailed_counts?start_date={start_date}&end_date={end_date}"
     if (approach != 'all')
       endpoint += '&approach={approach}'
     if (type != 'all')
