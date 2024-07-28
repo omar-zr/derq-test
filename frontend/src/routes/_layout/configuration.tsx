@@ -7,6 +7,7 @@ import { getStatus } from "../../hooks/getGeneratorStatus";
 import { GeneratorConfig, GeneratorService } from "../../client";
 import StatusIndicator from "../../components/Generator/StatusIndicator";
 import Forms from "../../components/Generator/Forms";
+import Chart from "react-apexcharts";
 
 export const Route = createFileRoute("/_layout/configuration")({
     component: Configuration,
@@ -34,6 +35,54 @@ function Configuration() {
 
     const { data: generatorStatus, refetch } = useQuery(getStatus());
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartOptions, setChartOptions] = useState<any>({
+        chart: {
+            id: "sensor-data",
+            zoom: {
+                enabled: true,
+                type: 'x',  
+                autoScaleYaxis: false,  
+                zoomedArea: {
+                    fill: {
+                        color: '#90CAF9',
+                        opacity: 0.4
+                    },
+                    stroke: {
+                        color: '#0D47A1',
+                        opacity: 0.4,
+                        width: 1
+                    }
+                }
+            }
+        },
+        xaxis: {
+            type: 'category',
+            categories: [],
+            title: {
+                text: 'Hour'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Count'
+            }
+        },
+        stroke: {
+            width: 2,
+            curve: 'smooth'
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            x: {
+                show: true
+            }
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
 
     const validateForms = () => {
         const isCarFormValid = carForm.validate();
@@ -118,6 +167,43 @@ function Configuration() {
         }
     }, [generatorStatus, carForm, attributeForm, failureForm]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://localhost/api/v1/sensors/data/counts?start_date=2024-07-17&end_date=2024-07-18');
+                const data = await response.json();
+                const formattedData = data.flatMap((approach: any) => 
+                    approach.hours.map((hour: any) => ({
+                        time: new Date(hour.time).getHours(),
+                        count: hour.count,
+                        approach: approach.approach
+                    }))
+                );
+
+                const categories = Array.from(new Set(formattedData.map((d: any) => d.time)));
+                const series = data.map((approach: any) => ({
+                    name: approach.approach,
+                    data: formattedData.filter((d: any) => d.approach === approach.approach).map((d: any) => d.count)
+                }));
+
+                setChartOptions((prevOptions: any) => ({
+                    ...prevOptions,
+                    xaxis: {
+                        ...prevOptions.xaxis,
+                        categories: categories
+                    }
+                }));
+                setChartData(series);
+            } catch (error) {
+                console.error("Error fetching sensor data:", error);
+            }
+        };
+
+        fetchData();
+        const interval = setInterval(fetchData, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <Container maxW="full">
             <Heading size="lg" textAlign={{ base: "center", md: "left" }} py={12}>
@@ -136,6 +222,7 @@ function Configuration() {
                     Stop
                 </Button>
             )}
+            <Chart options={chartOptions} series={chartData} type="line" width="100%" height={600} />
         </Container>
     );
 }
