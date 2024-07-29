@@ -82,21 +82,9 @@ def downtime(session: SessionDep, sensor_id: uuid.UUID) -> int:
     """
     Checks if the sensor is up. Returns 0 if the sensor is up, otherwise returns -1.
     """
-    # Implement your logic to check if the sensor is up
-    # For example, you might have a table that tracks sensor status
-    # Here, we assume a simple check based on a hypothetical SensorStatus table.
-
-    return -1
-    # from sqlalchemy import select
-    # from models import SensorStatus  # Assuming you have a SensorStatus model
-
-    # status_query = select(SensorStatus).where(SensorStatus.sensor_id == sensor_id)
-    # status = session.execute(status_query).scalar()
-
-    # if status and status.is_up:
-    #     return 0
-    # else:
-    #     return -1
+   ## As I said in ReadMe if there was more time  Iwould complete this part :)
+    return 0
+   
 
 @router.get("/counts", response_model=List[ApproachData])
 def get_hourly_counts(

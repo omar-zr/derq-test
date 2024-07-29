@@ -1,4 +1,4 @@
-Here's the rewritten `README.md` file with the additional instructions included:
+Here's the revised `README.md` file with the additional instructions included:
 
 ---
 
@@ -8,16 +8,16 @@ Here's the rewritten `README.md` file with the additional instructions included:
 
 - ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
     - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
-    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
+    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for data validation and settings management.
     - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
 - 🚀 [React](https://react.dev) for the frontend.
     - 💃 Using TypeScript, hooks, Vite, and other parts of a modern frontend stack.
-    - 🎨 [Chakra UI](https://chakra-ui.com) for the frontend components.
+    - 🎨 [Chakra UI](https://chakra-ui.com) for frontend components.
     - 🦇 Dark mode support.
 - 🐋 [Docker Compose](https://www.docker.com) for development and production.
 - 🔒 Secure password hashing by default.
 - 🔑 JWT (JSON Web Token) authentication.
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
+- 📞 [Traefik](https://traefik.io) as a reverse proxy/load balancer.
 - 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
 - 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
 
@@ -52,7 +52,11 @@ The generator will generate data at the path `/minutes`. This can also be config
 
 ### Important Note 
 
-Due to time constraints, it bit hard  to complete all requirements such as displaying the out-of-service time on the charts.
+- Due to time constraints, it was a bit challenging to complete all requirements, such as displaying the out-of-service time on the charts.
+- I am seeding the Sensors Info. Also, it doesn't make sense to rely on a sequential ID. 
+- Sensor1 is the one with ID 0 (For Filtering).
+- I didn't get the full picture behind the Downtime (is it down if there was no data, if there was corruption, if there was an offline status, or what exactly it is).
+- For APIs you can check `http://localhost/docs`
 
 ## Backend Documentation
 
