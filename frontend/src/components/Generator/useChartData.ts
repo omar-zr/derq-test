@@ -21,17 +21,19 @@ const CHART_OPTIONS = {
         }
     },
     xaxis: {
-        type: 'category',
+        type: 'datetime',
         labels: {
             rotate: -45,
+            formatter: function (value: any) {
+                return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            },
             style: {
                 colors: '#fff',
                 fontSize: '12px',
                 fontFamily: 'Helvetica, Arial, sans-serif',
                 fontWeight: 400
             }
-        },
-        categories: []
+        }
     },
     yaxis: {
         title: {
@@ -46,7 +48,10 @@ const CHART_OPTIONS = {
         shared: true,
         intersect: false,
         x: {
-            show: true
+            show: true,
+            formatter: function (value: any) {
+                return new Date(value).toLocaleString();
+            }
         }
     },
     legend: {
@@ -56,23 +61,17 @@ const CHART_OPTIONS = {
 
 const useChartData = () => {
     const [chartData, setChartData] = useState<any[]>([]);
-    const [chartOptions, setChartOptions] = useState<any>(CHART_OPTIONS);
+    const [chartOptions] = useState<any>(CHART_OPTIONS);
 
     const fetchChartData = useCallback(async () => {
         try {
             const response = await fetch('http://localhost/api/v1/sensors/data/live');
             const data = await response.json();
-            const formattedData = formatLiveData(data);
-            const categories = Array.from(new Set(formattedData.map((d: any) => d.time)));
-            const series = mapSeriesData(data, formattedData, categories);
 
-            setChartOptions((prevOptions: any) => ({
-                ...prevOptions,
-                xaxis: {
-                    ...prevOptions.xaxis,
-                    categories: categories
-                }
-            }));
+            const formattedData = formatLiveData(data);
+
+            const series = mapSeriesData(formattedData);
+
             setChartData(series);
         } catch (error) {
             console.error("Error fetching sensor data:", error);
@@ -82,24 +81,25 @@ const useChartData = () => {
     const formatLiveData = (data: any) => {
         return data.flatMap((approach: any) =>
             approach.hours.map((hour: any) => ({
-                time: new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                time: new Date(hour.time).getTime(),
                 count: hour.count,
                 approach: approach.approach
             }))
-        );
+        ).filter((d: any) => d.count !== 0); // Filter out zero count values
     };
 
-    const mapSeriesData = (data: any, formattedData: any, categories: any) => {
-        return data.map((approach: any) => {
-            const approachData = formattedData.filter((d: any) => d.approach === approach.approach);
-            return {
-                name: approach.approach,
-                data: categories.map((category: string) => {
-                    const dataPoint = approachData.find((d: any) => d.time === category);
-                    return dataPoint ? dataPoint.count : 0;
-                })
-            };
+    const mapSeriesData = (formattedData: any) => {
+        const series: any = {};
+        formattedData.forEach((d: any) => {
+            if (!series[d.approach]) {
+                series[d.approach] = [];
+            }
+            series[d.approach].push([d.time, d.count]);
         });
+        return Object.keys(series).map((approach: string) => ({
+            name: approach,
+            data: series[approach]
+        }));
     };
 
     return { chartData, chartOptions, fetchChartData };

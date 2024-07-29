@@ -64,7 +64,7 @@ function Configuration() {
 
     useEffect(() => {
         fetchChartData();
-        const chartInterval = setInterval(fetchChartData, 60000);
+        const chartInterval = setInterval(fetchChartData, 30000);
         return () => clearInterval(chartInterval);
     }, [fetchChartData]);
 
