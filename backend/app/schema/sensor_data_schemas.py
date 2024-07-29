@@ -44,6 +44,12 @@ class HourlyApproachCount(BaseModel):
     totalCount: int
     results: Dict[str, int]
 
+class MinuteApproachCount(BaseModel):
+    minute: datetime
+    totalCount: int
+    results: Dict[str, int]
+
+
 
 class SensorDataCreate(BaseModel):
     sensor_id: uuid.UUID

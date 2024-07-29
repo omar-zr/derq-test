@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from app.models.sensor_data_models import Approach, SensorClass, SensorData, SensorDataPublic
-from app.schema.sensor_data_schemas import ApproachData, HourlyApproachCount, HourlyData, SensorDataCreate, SensorDataPublicList
+from app.schema.sensor_data_schemas import ApproachData, HourlyApproachCount, HourlyData, MinuteApproachCount, SensorDataCreate, SensorDataPublicList
 from fastapi import APIRouter, HTTPException, Query # type: ignore
 from sqlmodel import func, select # type: ignore
 
@@ -374,3 +374,77 @@ def get_detailed_hourly_counts(
 
     return hourly_counts
     
+
+@router.get("/live/detailed_counts", response_model=List[MinuteApproachCount])
+def get_detailed_minute_counts(
+    session: SessionDep,
+    sensor_id: Optional[uuid.UUID] = None,
+    approach: Optional[str] = None,
+    sensorclass: Optional[str] = None
+) -> Any:
+    """
+    Returns detailed minute counts for the last 30 minutes, filtered by sensor, approach, and class.
+    """
+
+    # Get the current time and calculate the start time (30 minutes ago)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(minutes=30)
+
+    # Define the minute truncation
+    minute_trunc = func.date_trunc("minute", SensorData.time)
+
+    # Base query
+    query = select(
+        minute_trunc.label("minute"),
+        SensorData.approach,
+        SensorData.class_type,
+        func.count(SensorData.id).label("count")
+    ).select_from(SensorData).where(
+        SensorData.time >= start_date,
+        SensorData.time <= end_date
+    )
+
+    # Apply filters
+    if sensor_id:
+        query = query.where(SensorData.sensor_id == sensor_id)
+
+    if approach:
+        try:
+            approach_enum = Approach[approach]
+            query = query.where(SensorData.approach == approach_enum)
+        except KeyError:
+            raise HTTPException(status_code=400, detail="Invalid approach value")
+
+    if sensorclass:
+        try:
+            sensorclass_enum = SensorClass[sensorclass]
+            query = query.where(SensorData.class_type == sensorclass_enum)
+        except KeyError:
+            raise HTTPException(status_code=400, detail="Invalid sensorclass value")
+
+    # Group by minute, approach, and class_type
+    query = query.group_by(minute_trunc, SensorData.approach, SensorData.class_type)
+    query = query.order_by(minute_trunc)
+
+    # Execute the query and fetch results
+    results = session.execute(query).all()
+
+    # All possible approach and class_type combinations
+    all_combinations = {f"{a}_{c}": 0 for a, c in product(Approach, SensorClass)}
+
+    # Structure the response
+    minute_counts = []
+    for minute, minute_group in groupby(results, key=lambda x: x.minute):
+        results_dict = all_combinations.copy()
+        for result in minute_group:
+            key = f"{result.approach}_{result.class_type}"
+            results_dict[key] = result.count
+
+        total_count = sum(results_dict.values())
+        minute_counts.append({
+            "minute": minute,
+            "totalCount": total_count,
+            "results": results_dict
+        })
+
+    return minute_counts
