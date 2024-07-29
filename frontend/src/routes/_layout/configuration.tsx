@@ -57,11 +57,17 @@ function Configuration() {
             }
         },
         xaxis: {
-            type: 'category',
-            categories: [],
-            title: {
-                text: 'Hour'
-            }
+            type: 'category',  // Set the x-axis to treat the values as categories
+            labels: {
+                rotate: -45,
+                style: {
+                    colors: '#fff',  // Adjust color if needed
+                    fontSize: '12px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    fontWeight: 400
+                }
+            },
+            categories: []
         },
         yaxis: {
             title: {
@@ -172,21 +178,33 @@ function Configuration() {
             try {
                 const response = await fetch('http://localhost/api/v1/sensors/data/live');
                 const data = await response.json();
-                const formattedData = data.flatMap((approach: any) => 
+    
+                // Format the data correctly
+                const formattedData = data.flatMap((approach: any) =>
                     approach.hours.map((hour: any) => ({
-                        time: new Date(hour.time).getTime(),
+                        time: new Date(hour.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         count: hour.count,
                         approach: approach.approach
                     }))
                 );
-
+    
+                // Get unique times for categories
                 const categories = Array.from(new Set(formattedData.map((d: any) => d.time)));
-                
-                const series = data.map((approach: any) => ({
-                    name: approach.approach,
-                    data: formattedData.filter((d: any) => d.approach === approach.approach).map((d: any) => d.count)
-                }));
-
+    
+                // Map series data to these categories
+                const series = data.map((approach: any) => {
+                    const approachData = formattedData.filter((d: any) => d.approach === approach.approach);
+    
+                    return {
+                        name: approach.approach,
+                        data: categories.map((category: string) => {
+                            const dataPoint = approachData.find((d: any) => d.time === category);
+                            return dataPoint ? dataPoint.count : 0; // Default to 0 if no data point for this time
+                        })
+                    };
+                });
+    
+                // Update chart options and data
                 setChartOptions((prevOptions: any) => ({
                     ...prevOptions,
                     xaxis: {
@@ -199,11 +217,13 @@ function Configuration() {
                 console.error("Error fetching sensor data:", error);
             }
         };
-
+    
         fetchData();
         const interval = setInterval(fetchData, 60000);
         return () => clearInterval(interval);
     }, []);
+    
+    
 
     return (
         <Container maxW="full">
