@@ -57,6 +57,9 @@ The generator will generate data at the path `/minutes`. This can also be config
 - Sensor1 is the one with ID 0 (For Filtering).
 - I didn't get the full picture behind the Downtime (is it down if there was no data, if there was corruption, if there was an offline status, or what exactly it is).
 - For APIs you can check `http://localhost/docs`
+- Let me know if you found anything questionable. 
+- Please  read each project ReadMe will gives you more insights.
+- There is a Dark Mode also.
 
 ## Backend Documentation
 
